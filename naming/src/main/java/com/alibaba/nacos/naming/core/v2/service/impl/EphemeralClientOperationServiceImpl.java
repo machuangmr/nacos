@@ -22,6 +22,7 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.utils.NamingUtils;
 import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.naming.core.v2.ServiceManager;
+import com.alibaba.nacos.naming.core.v2.client.AbstractClient;
 import com.alibaba.nacos.naming.core.v2.client.Client;
 import com.alibaba.nacos.naming.core.v2.client.manager.ClientManager;
 import com.alibaba.nacos.naming.core.v2.client.manager.ClientManagerDelegate;
@@ -119,7 +120,14 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
                     new MetadataEvent.InstanceMetadataEvent(singleton, removedInstance.getMetadataId(), true));
         }
     }
-    
+
+    /**
+     * 主要维护客户端链接管理中，服务和订阅着之间的关联关系
+     * @see AbstractClient#subscr ibers
+     * @param service    service
+     * @param subscriber subscribe
+     * @param clientId   id of client
+     */
     @Override
     public void subscribeService(Service service, Subscriber subscriber, String clientId) {
         Service singleton = ServiceManager.getInstance().getSingletonIfExist(service).orElse(service);
@@ -129,6 +137,10 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
         }
         client.addServiceSubscriber(singleton, subscriber);
         client.setLastUpdatedTime();
+        /** @see com.alibaba.nacos.naming.core.v2.index.ClientServiceIndexesManager#handleClientOperation(
+         * com.alibaba.nacos.naming.core.v2.event.client.ClientOperationEvent)
+         * 然后对应的监听器进行事件处理
+         */
         NotifyCenter.publishEvent(new ClientOperationEvent.ClientSubscribeServiceEvent(singleton, clientId));
     }
     

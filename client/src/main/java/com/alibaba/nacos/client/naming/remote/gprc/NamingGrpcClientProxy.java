@@ -190,6 +190,10 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
     @Override
     public ServiceInfo queryInstancesOfService(String serviceName, String groupName, String clusters, int udpPort,
             boolean healthyOnly) throws NacosException {
+        // 这里构建一个serviceQueryRequest，对应的处理逻辑为：
+        /**
+         *  @see com.alibaba.nacos.naming.remote.rpc.handler.ServiceQueryRequestHandler
+          */
         ServiceQueryRequest request = new ServiceQueryRequest(namespaceId, serviceName, groupName);
         request.setCluster(clusters);
         request.setHealthyOnly(healthyOnly);
@@ -253,6 +257,10 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
      * @throws NacosException nacos exception
      */
     public ServiceInfo doSubscribe(String serviceName, String groupName, String clusters) throws NacosException {
+        /**
+         * 这里利用grpc 发起一个订阅服务的客户端请求，对应的服务端的处理如下：
+         * @see com.alibaba.nacos.naming.remote.rpc.handler.SubscribeServiceRequestHandler
+         */
         SubscribeServiceRequest request = new SubscribeServiceRequest(namespaceId, groupName, serviceName, clusters,
                 true);
         SubscribeServiceResponse response = requestToServer(request, SubscribeServiceResponse.class);

@@ -126,6 +126,7 @@ public class NamingSubscriberServiceV2Impl extends SmartSubscriber implements Na
             Service service = serviceChangedEvent.getService();
             delayTaskEngine.addTask(service, new PushDelayTask(service, PushConfig.getInstance().getPushTaskDelay()));
         } else if (event instanceof ServiceEvent.ServiceSubscribedEvent) {
+            // 事件发生后，当数据发生变化后，推送数据到对应的客户端
             // If service is subscribed by one client, only push this client.
             ServiceEvent.ServiceSubscribedEvent subscribedEvent = (ServiceEvent.ServiceSubscribedEvent) event;
             Service service = subscribedEvent.getService();

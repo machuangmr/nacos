@@ -299,6 +299,7 @@ public class NotifyCenter {
         
         EventPublisher publisher = INSTANCE.publisherMap.get(topic);
         if (publisher != null) {
+            // 发布事件，将任务添加到阻塞队列中去
             return publisher.publish(event);
         }
         LOGGER.warn("There are no [{}] publishers for this event, please register", topic);

@@ -230,16 +230,20 @@ public class NacosNamingService implements NamingService {
     }
     
     @Override
-    public List<Instance> getAllInstances(String serviceName, String groupName, List<String> clusters,
+    public List<Instance>  getAllInstances(String serviceName, String groupName, List<String> clusters,
             boolean subscribe) throws NacosException {
         ServiceInfo serviceInfo;
         String clusterString = StringUtils.join(clusters, ",");
+        // 默认是订阅的
         if (subscribe) {
+            // serviceInfoHolder 本地服务缓存，不需要每次从注册中心去拿
             serviceInfo = serviceInfoHolder.getServiceInfo(serviceName, groupName, clusterString);
             if (null == serviceInfo || !clientProxy.isSubscribed(serviceName, groupName, clusterString)) {
+                // 调用订阅方法的同时，也做了相关查询。
                 serviceInfo = clientProxy.subscribe(serviceName, groupName, clusterString);
             }
         } else {
+            // 通过客户端待离去查询服务列表
             serviceInfo = clientProxy.queryInstancesOfService(serviceName, groupName, clusterString, 0, false);
         }
         List<Instance> list;
@@ -400,6 +404,7 @@ public class NacosNamingService implements NamingService {
             return;
         }
         String clusterString = StringUtils.join(clusters, ",");
+        // 注册一个客户端的监听器， 在管理监听器的时候，肯定会去执行他的onEvent方法，然后进行处理业务逻辑
         changeNotifier.registerListener(groupName, serviceName, clusterString, listener);
         clientProxy.subscribe(serviceName, groupName, clusterString);
     }

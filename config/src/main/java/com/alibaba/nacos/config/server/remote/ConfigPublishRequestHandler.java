@@ -46,6 +46,7 @@ import java.util.Map;
 
 /**
  * request handler to publish config.
+ * 配置发布对应的服务端代码， 使用的grpc进行通信
  *
  * @author liuzunfei
  * @version $Id: ConfigPublishRequestHandler.java, v 0.1 2020年07月16日 4:41 PM liuzunfei Exp $
@@ -63,6 +64,7 @@ public class ConfigPublishRequestHandler extends RequestHandler<ConfigPublishReq
     @TpsControl(pointName = "ConfigPublish", parsers = {ConfigPublishGroupKeyParser.class,
             ConfigPublishGroupParser.class})
     @Secured(action = ActionTypes.WRITE, signType = SignType.CONFIG)
+    // 类似我们写业务代码的controller
     public ConfigPublishResponse handle(ConfigPublishRequest request, RequestMeta meta) throws NacosException {
         
         try {

@@ -1034,7 +1034,25 @@ public class ClientWorker implements Closeable {
         RpcClient getOneRunningClient() throws NacosException {
             return ensureRpcClient("0");
         }
-        
+
+        /**
+         *  构建一个grpc的请求，发送到服务端，发布对应的配置
+         *  对应服务端的处理逻辑
+         * @see com.alibaba.nacos.config.server.remote.ConfigPublishRequestHandler#handle(com.alibaba.nacos.api.config.remote.request.ConfigPublishRequest, com.alibaba.nacos.api.remote.request.RequestMeta)
+         *
+         * @param dataId           dataId.
+         * @param group            group.
+         * @param tenant           tenant.
+         * @param appName          appName.
+         * @param tag              tag.
+         * @param betaIps          betaIps.
+         * @param content          content.
+         * @param encryptedDataKey encryptedDataKey
+         * @param casMd5           casMd5.
+         * @param type             type.
+         * @return
+         * @throws NacosException
+         */
         @Override
         public boolean publishConfig(String dataId, String group, String tenant, String appName, String tag,
                 String betaIps, String content, String encryptedDataKey, String casMd5, String type)

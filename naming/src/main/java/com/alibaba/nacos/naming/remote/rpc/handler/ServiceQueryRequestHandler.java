@@ -23,6 +23,7 @@ import com.alibaba.nacos.api.naming.remote.response.QueryServiceResponse;
 import com.alibaba.nacos.api.remote.request.RequestMeta;
 import com.alibaba.nacos.auth.annotation.Secured;
 import com.alibaba.nacos.core.remote.RequestHandler;
+import com.alibaba.nacos.naming.core.v2.index.ClientServiceIndexesManager;
 import com.alibaba.nacos.naming.core.v2.index.ServiceStorage;
 import com.alibaba.nacos.naming.core.v2.metadata.NamingMetadataManager;
 import com.alibaba.nacos.naming.core.v2.metadata.ServiceMetadata;
@@ -57,6 +58,12 @@ public class ServiceQueryRequestHandler extends RequestHandler<ServiceQueryReque
         Service service = Service.newService(namespaceId, groupName, serviceName);
         String cluster = null == request.getCluster() ? "" : request.getCluster();
         boolean healthyOnly = request.isHealthyOnly();
+        // 为了避免并发的读写冲突，使用另一个容器将服务信息缓存起来，如果没有缓存中没有的话，则会从之前的集合中去拿
+        // 也就是ConnectionBasedClientManager 中的，管理客户端链接和服务列表信息的容器。
+        /**
+         *     @see com.alibaba.nacos.naming.core.v2.index.ClientService IndexesManager
+          */
+
         ServiceInfo result = serviceStorage.getData(service);
         ServiceMetadata serviceMetadata = metadataManager.getServiceMetadata(service).orElse(null);
         result = ServiceUtil.selectInstancesWithHealthyProtection(result, serviceMetadata, cluster, healthyOnly, true,

@@ -29,6 +29,7 @@ import com.alibaba.nacos.naming.core.v2.event.publisher.NamingEventPublisherFact
 import com.alibaba.nacos.naming.core.v2.event.service.ServiceEvent;
 import com.alibaba.nacos.naming.core.v2.pojo.InstancePublishInfo;
 import com.alibaba.nacos.naming.core.v2.pojo.Service;
+import com.alibaba.nacos.naming.push.v2.NamingSubscriberServiceV2Impl;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -115,6 +116,7 @@ public class ClientServiceIndexesManager extends SmartSubscriber {
     }
     
     private void handleClientOperation(ClientOperationEvent event) {
+        // grpc 处理客户端的响应事件，当客户端索引发生变化的时候， 处理变化的事件。
         Service service = event.getService();
         String clientId = event.getClientId();
         if (event instanceof ClientOperationEvent.ClientRegisterServiceEvent) {
@@ -122,6 +124,7 @@ public class ClientServiceIndexesManager extends SmartSubscriber {
         } else if (event instanceof ClientOperationEvent.ClientDeregisterServiceEvent) {
             removePublisherIndexes(service, clientId);
         } else if (event instanceof ClientOperationEvent.ClientSubscribeServiceEvent) {
+            // 处理订阅事件
             addSubscriberIndexes(service, clientId);
         } else if (event instanceof ClientOperationEvent.ClientUnsubscribeServiceEvent) {
             removeSubscriberIndexes(service, clientId);
@@ -146,6 +149,13 @@ public class ClientServiceIndexesManager extends SmartSubscriber {
         subscriberIndexes.computeIfAbsent(service, (key) -> new ConcurrentHashSet<>());
         // Fix #5404, Only first time add need notify event.
         if (subscriberIndexes.get(service).add(clientId)) {
+            /**
+             * 订阅成功后，如果服务端数据发生变更则由对应事件进行再次处理，
+             * 事件处理的逻辑,  这里因为采用异步事件进行处理，所以只能去全局搜索对应的事件处理过程。
+             * @see NamingSubscriberServiceV2Impl#onEvent(com.alibaba.nacos.common.notify.Event)
+              */
+
+
             NotifyCenter.publishEvent(new ServiceEvent.ServiceSubscribedEvent(service, clientId));
         }
     }

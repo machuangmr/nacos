@@ -114,6 +114,8 @@ public class DefaultPublisher extends Thread implements EventPublisher {
                 if (shutdown) {
                     break;
                 }
+                // 客户端对于监听事件的处理。
+                // 在启动的时候，该线程也会立即启动，然后从阻塞队列中去获取任务执行
                 final Event event = queue.take();
                 receiveEvent(event);
                 UPDATER.compareAndSet(this, lastEventSequence, Math.max(lastEventSequence, event.sequence()));
@@ -208,6 +210,7 @@ public class DefaultPublisher extends Thread implements EventPublisher {
         if (executor != null) {
             executor.execute(job);
         } else {
+            // 利用当前线程执行订阅监听器，将结果通知给客户端
             try {
                 job.run();
             } catch (Throwable e) {
