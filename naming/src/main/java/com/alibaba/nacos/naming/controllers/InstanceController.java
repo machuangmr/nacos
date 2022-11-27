@@ -76,7 +76,8 @@ import static com.alibaba.nacos.naming.misc.UtilsAndCommons.DEFAULT_CLUSTER_NAME
  * @author nkorange
  */
 @RestController
-@RequestMapping(UtilsAndCommons.NACOS_NAMING_CONTEXT + UtilsAndCommons.NACOS_NAMING_INSTANCE_CONTEXT)
+//
+@RequestMapping("/v1/ns/instance")
 public class InstanceController {
     
     @Autowired
@@ -117,8 +118,10 @@ public class InstanceController {
         
         final Instance instance = HttpRequestInstanceBuilder.newBuilder()
                 .setDefaultInstanceEphemeral(switchDomain.isDefaultInstanceEphemeral()).setRequest(request).build();
-        
+        // 开始注册
         getInstanceOperator().registerInstance(namespaceId, serviceName, instance);
+
+        // 通知中心发布事件，在哪里监听呢，发布这个时间的作用是什么呢？
         NotifyCenter.publishEvent(new RegisterInstanceTraceEvent(System.currentTimeMillis(), "",
                 false, namespaceId, NamingUtils.getGroupName(serviceName), NamingUtils.getServiceName(serviceName),
                 instance.getIp(), instance.getPort()));

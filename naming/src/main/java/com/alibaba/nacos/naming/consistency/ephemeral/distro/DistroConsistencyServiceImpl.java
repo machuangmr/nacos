@@ -110,8 +110,11 @@ public class DistroConsistencyServiceImpl implements EphemeralConsistencyService
     
     @Override
     public void put(String key, Record value) throws NacosException {
+        // 我们使用的是临时实例，
+        // 增加新的记录，并增加一个监听
         onPut(key, value);
         // If upgrade to 2.0.X, do not sync for v1.
+
         if (ApplicationUtils.getBean(UpgradeJudgement.class).isUseGrpcFeatures()) {
             return;
         }
@@ -143,13 +146,14 @@ public class DistroConsistencyServiceImpl implements EphemeralConsistencyService
             datum.value = (Instances) value;
             datum.key = key;
             datum.timestamp.incrementAndGet();
+            // 设置到内部的数据结构中去
             dataStore.put(key, datum);
         }
         
         if (!listeners.containsKey(key)) {
             return;
         }
-        
+        // 向notify 中添加一个任务
         notifier.addTask(key, DataOperation.CHANGE);
     }
     
@@ -329,7 +333,8 @@ public class DistroConsistencyServiceImpl implements EphemeralConsistencyService
             return false;
         }
     }
-    
+
+    // 添加监听器
     @Override
     public void listen(String key, RecordListener listener) throws NacosException {
         if (!listeners.containsKey(key)) {
@@ -396,6 +401,7 @@ public class DistroConsistencyServiceImpl implements EphemeralConsistencyService
             if (action == DataOperation.CHANGE) {
                 services.put(datumKey, StringUtils.EMPTY);
             }
+            // 向阻塞队列(BlockQueue)中添加一个任务
             tasks.offer(Pair.with(datumKey, action));
         }
         
@@ -436,6 +442,7 @@ public class DistroConsistencyServiceImpl implements EphemeralConsistencyService
                     
                     try {
                         if (action == DataOperation.CHANGE) {
+                            //
                             listener.onChange(datumKey, dataStore.get(datumKey).value);
                             continue;
                         }

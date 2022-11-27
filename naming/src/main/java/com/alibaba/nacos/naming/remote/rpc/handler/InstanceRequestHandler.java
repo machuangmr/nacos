@@ -48,6 +48,7 @@ public class InstanceRequestHandler extends RequestHandler<InstanceRequest, Inst
     
     @Override
     @Secured(action = ActionTypes.WRITE)
+    // 如果是采用的grpc 协议，服务端的注册逻辑如下
     public InstanceResponse handle(InstanceRequest request, RequestMeta meta) throws NacosException {
         Service service = Service
                 .newService(request.getNamespace(), request.getGroupName(), request.getServiceName(), true);
@@ -64,6 +65,7 @@ public class InstanceRequestHandler extends RequestHandler<InstanceRequest, Inst
     
     private InstanceResponse registerInstance(Service service, InstanceRequest request, RequestMeta meta)
             throws NacosException {
+        // 客户端注册服务
         clientOperationService.registerInstance(service, request.getInstance(), meta.getConnectionId());
         NotifyCenter.publishEvent(new RegisterInstanceTraceEvent(System.currentTimeMillis(),
                 meta.getClientIp(), true, service.getNamespace(), service.getGroup(), service.getName(),

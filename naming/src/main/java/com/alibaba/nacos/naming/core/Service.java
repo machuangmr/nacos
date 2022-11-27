@@ -176,7 +176,7 @@ public class Service extends com.alibaba.nacos.api.naming.pojo.Service implement
     
     @Override
     public void onChange(String key, Instances value) throws Exception {
-        
+        // 在这里执行监听器的onChange方法
         Loggers.SRV_LOG.info("[NACOS-RAFT] datum is changed, key: {}, value: {}", key, value);
         
         for (Instance instance : value.getInstanceList()) {
@@ -194,7 +194,7 @@ public class Service extends com.alibaba.nacos.api.naming.pojo.Service implement
                 instance.setWeight(0.01D);
             }
         }
-        
+        // 更新所有的实例
         updateIPs(value.getInstanceList(), KeyBuilder.matchEphemeralInstanceListKey(key));
         
         recalculateChecksum();

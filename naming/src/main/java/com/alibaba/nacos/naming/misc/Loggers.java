@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Naming loggers holder.
+ * holder 类似于一个缓存，一个持有者一样
  *
  * @author nacos
  */

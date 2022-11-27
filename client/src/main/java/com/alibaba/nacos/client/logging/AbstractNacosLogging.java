@@ -56,7 +56,7 @@ public abstract class AbstractNacosLogging {
     }
     
     private boolean isDefaultConfigEnabled() {
-        String property = System.getProperty(NACOS_LOGGING_DEFAULT_CONFIG_ENABLED_PROPERTY);
+        String property = System.getProperty(NACOS_LOGGING_DEFAULT_CONFIG_ENABLED_PROPERTY, "false");
         // The default value is true.
         return property == null || ConvertUtils.toBoolean(property);
     }

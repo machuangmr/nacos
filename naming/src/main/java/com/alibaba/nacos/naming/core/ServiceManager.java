@@ -79,6 +79,7 @@ import static com.alibaba.nacos.naming.misc.UtilsAndCommons.UPDATE_INSTANCE_META
 public class ServiceManager implements RecordListener<Service> {
     
     /**
+     * nacos内部存储service的数据结构
      * Map(namespace, Map(group::serviceName, Service)).
      */
     private final Map<String, Map<String, Service>> serviceMap = new ConcurrentHashMap<>();
@@ -484,7 +485,8 @@ public class ServiceManager implements RecordListener<Service> {
     public void registerInstance(String namespaceId, String serviceName, Instance instance) throws NacosException {
         
         NamingUtils.checkInstanceIsLegal(instance);
-        
+
+        // 创建一个空的service, 主要是为了构造serviceMap对象
         createEmptyService(namespaceId, serviceName, instance.isEphemeral());
         
         Service service = getService(namespaceId, serviceName);
@@ -643,8 +645,9 @@ public class ServiceManager implements RecordListener<Service> {
             List<Instance> instanceList = addIpAddresses(service, ephemeral, ips);
             
             Instances instances = new Instances();
+            // 一个服务可以有多个实例
             instances.setInstanceList(instanceList);
-            
+            // 到这里进行注册，
             consistencyService.put(key, instances);
         }
     }
@@ -869,9 +872,13 @@ public class ServiceManager implements RecordListener<Service> {
     }
     
     private void putServiceAndInit(Service service) throws NacosException {
+        // 添加服务
         putService(service);
+
         service = getService(service.getNamespaceId(), service.getName());
+        // 初始化服务（主要是增加了和客户端的心跳检测任务和服务的健康检查任务）
         service.init();
+        // 添加了 recordListener的监听。
         consistencyService
                 .listen(KeyBuilder.buildInstanceListKey(service.getNamespaceId(), service.getName(), true), service);
         consistencyService
