@@ -1058,6 +1058,10 @@ public class ClientWorker implements Closeable {
                 String betaIps, String content, String encryptedDataKey, String casMd5, String type)
                 throws NacosException {
             try {
+                /**
+                 * 配置发布grpc请求
+                 * @see com.alibaba.nacos.config.server.remote.ConfigPublishRequestHandler#handle(com.alibaba.nacos.api.config.remote.request.ConfigPublishRequest, com.alibaba.nacos.api.remote.request.RequestMeta)
+                 */
                 ConfigPublishRequest request = new ConfigPublishRequest(dataId, group, tenant, content);
                 request.setCasMd5(casMd5);
                 request.putAdditionalParam(TAG_PARAM, tag);

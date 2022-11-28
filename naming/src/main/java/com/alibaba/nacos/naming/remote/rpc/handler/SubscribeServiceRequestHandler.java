@@ -71,6 +71,7 @@ public class SubscribeServiceRequestHandler extends RequestHandler<SubscribeServ
         // 通过sub
         Subscriber subscriber = new Subscriber(meta.getClientIp(), meta.getClientVersion(), app, meta.getClientIp(),
                 namespaceId, groupedServiceName, 0, request.getClusters());
+        // 利用serviceStorage 再将服务单独存储一份，和clientSrvIdx容器中的数据隔离开，提高并发处理能力
         ServiceInfo serviceInfo = ServiceUtil.selectInstancesWithHealthyProtection(serviceStorage.getData(service),
                 metadataManager.getServiceMetadata(service).orElse(null), subscriber.getCluster(), false,
                 true, subscriber.getIp());

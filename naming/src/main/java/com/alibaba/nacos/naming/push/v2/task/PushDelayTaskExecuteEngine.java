@@ -99,6 +99,7 @@ public class PushDelayTaskExecuteEngine extends NacosDelayTaskExecuteEngine {
         
         @Override
         public boolean process(NacosTask task) {
+            // 处理推送的延迟任务， 将任务加入到阻塞队列中去，最后执行任务的run方法
             PushDelayTask pushDelayTask = (PushDelayTask) task;
             Service service = pushDelayTask.getService();
             NamingExecuteTaskDispatcher.getInstance()

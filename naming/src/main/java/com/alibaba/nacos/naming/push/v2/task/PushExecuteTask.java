@@ -56,6 +56,7 @@ public class PushExecuteTask extends AbstractExecuteTask {
     @Override
     public void run() {
         try {
+            // 对包装数据进行封装, 推送至客户端
             PushDataWrapper wrapper = generatePushData();
             ClientManager clientManager = delayTaskEngine.getClientManager();
             for (String each : getTargetClientIds()) {
@@ -75,6 +76,7 @@ public class PushExecuteTask extends AbstractExecuteTask {
     }
     
     private PushDataWrapper generatePushData() {
+        // 直接从缓存serviceManager中拿去数据，然后更新到索引中去
         ServiceInfo serviceInfo = delayTaskEngine.getServiceStorage().getPushData(service);
         ServiceMetadata serviceMetadata = delayTaskEngine.getMetadataManager().getServiceMetadata(service).orElse(null);
         return new PushDataWrapper(serviceMetadata, serviceInfo);

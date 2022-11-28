@@ -28,6 +28,7 @@ import com.alibaba.nacos.naming.core.v2.client.manager.ClientManager;
 import com.alibaba.nacos.naming.core.v2.client.manager.ClientManagerDelegate;
 import com.alibaba.nacos.naming.core.v2.event.client.ClientOperationEvent;
 import com.alibaba.nacos.naming.core.v2.event.metadata.MetadataEvent;
+import com.alibaba.nacos.naming.core.v2.index.ClientServiceIndexesManager;
 import com.alibaba.nacos.naming.core.v2.pojo.BatchInstancePublishInfo;
 import com.alibaba.nacos.naming.core.v2.pojo.InstancePublishInfo;
 import com.alibaba.nacos.naming.core.v2.pojo.Service;
@@ -68,8 +69,14 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
             return;
         }
         InstancePublishInfo instanceInfo = getPublishInfo(instance);
+        // 保存实例信息到当前的链接中
         client.addServiceInstance(singleton, instanceInfo);
         client.setLastUpdatedTime();
+        /**
+         *  其实注册到这里就差不多结束了，下面的事件就是用于更新服务索引的异步事件
+         * 异步事件处理，构建服务索引，更高效的检索服务和对应客户端id
+         * @see ClientServiceIndexesManager#handleClientOperation(com.alibaba.nacos.naming.core.v2.event.client.ClientOperationEvent)
+         */
         NotifyCenter.publishEvent(new ClientOperationEvent.ClientRegisterServiceEvent(singleton, clientId));
         NotifyCenter
                 .publishEvent(new MetadataEvent.InstanceMetadataEvent(singleton, instanceInfo.getMetadataId(), false));

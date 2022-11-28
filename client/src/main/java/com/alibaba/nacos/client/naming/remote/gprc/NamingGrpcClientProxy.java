@@ -153,6 +153,10 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
         InstanceRequest request = new InstanceRequest(namespaceId, serviceName, groupName,
                 NamingRemoteConstants.REGISTER_INSTANCE, instance);
         // 这个怎么做到注册的？grpc如何做的？
+        /**
+         * 对应服务端的处理逻辑为
+         * @see com.alibaba.nacos.naming.remote.rpc.handler.InstanceRequestHandler#handle(com.alibaba.nacos.api.naming.remote.request.InstanceRequest, com.alibaba.nacos.api.remote.request.RequestMeta)
+         */
         requestToServer(request, Response.class);
         // 设置服务注册状态
         redoService.instanceRegistered(serviceName, groupName);

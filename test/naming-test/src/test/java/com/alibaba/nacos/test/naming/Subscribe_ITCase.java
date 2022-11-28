@@ -83,13 +83,10 @@ public class Subscribe_ITCase extends NamingBase {
     public void subscribeAdd() throws Exception {
         String serviceName = randomDomainName();
 
-        naming.subscribe(serviceName, new EventListener() {
-            @Override
-            public void onEvent(Event event) {
-                System.out.println(((NamingEvent) event).getServiceName());
-                System.out.println(((NamingEvent) event).getInstances());
-                instances = ((NamingEvent) event).getInstances();
-            }
+        naming.subscribe(serviceName, event -> {
+            System.out.println(((NamingEvent) event).getServiceName());
+            System.out.println(((NamingEvent) event).getInstances());
+            instances = ((NamingEvent) event).getInstances();
         });
 
         naming.registerInstance(serviceName, "127.0.0.1", TEST_PORT, "c1");

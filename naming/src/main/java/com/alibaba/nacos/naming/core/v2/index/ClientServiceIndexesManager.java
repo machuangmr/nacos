@@ -46,7 +46,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 @Component
 public class ClientServiceIndexesManager extends SmartSubscriber {
-    
+
+    // service -- clientIds
     private final ConcurrentMap<Service, Set<String>> publisherIndexes = new ConcurrentHashMap<>();
     
     private final ConcurrentMap<Service, Set<String>> subscriberIndexes = new ConcurrentHashMap<>();
@@ -119,6 +120,7 @@ public class ClientServiceIndexesManager extends SmartSubscriber {
         // grpc 处理客户端的响应事件，当客户端索引发生变化的时候， 处理变化的事件。
         Service service = event.getService();
         String clientId = event.getClientId();
+        // 构建服务的索引
         if (event instanceof ClientOperationEvent.ClientRegisterServiceEvent) {
             addPublisherIndexes(service, clientId);
         } else if (event instanceof ClientOperationEvent.ClientDeregisterServiceEvent) {
@@ -130,10 +132,16 @@ public class ClientServiceIndexesManager extends SmartSubscriber {
             removeSubscriberIndexes(service, clientId);
         }
     }
-    
+
+
     private void addPublisherIndexes(Service service, String clientId) {
+        // srv -- clientIds
         publisherIndexes.computeIfAbsent(service, (key) -> new ConcurrentHashSet<>());
         publisherIndexes.get(service).add(clientId);
+        /**
+         * 异步处理服务变更事件
+         * @see NamingSubscriberServiceV2Impl#onEvent(com.alibaba.nacos.common.notify.Event)
+         */
         NotifyCenter.publishEvent(new ServiceEvent.ServiceChangedEvent(service, true));
     }
     
@@ -146,6 +154,7 @@ public class ClientServiceIndexesManager extends SmartSubscriber {
     }
     
     private void addSubscriberIndexes(Service service, String clientId) {
+        // 维护订阅者索引关系
         subscriberIndexes.computeIfAbsent(service, (key) -> new ConcurrentHashSet<>());
         // Fix #5404, Only first time add need notify event.
         if (subscriberIndexes.get(service).add(clientId)) {
@@ -154,7 +163,6 @@ public class ClientServiceIndexesManager extends SmartSubscriber {
              * 事件处理的逻辑,  这里因为采用异步事件进行处理，所以只能去全局搜索对应的事件处理过程。
              * @see NamingSubscriberServiceV2Impl#onEvent(com.alibaba.nacos.common.notify.Event)
               */
-
 
             NotifyCenter.publishEvent(new ServiceEvent.ServiceSubscribedEvent(service, clientId));
         }

@@ -52,6 +52,7 @@ public class ServiceManager {
     
     /**
      * Get singleton service. Put to manager if no singleton.
+     * 缓存服务
      *
      * @param service new service
      * @return if service is exist, return exist service, otherwise return new service
@@ -59,6 +60,7 @@ public class ServiceManager {
     public Service getSingleton(Service service) {
         singletonRepository.putIfAbsent(service, service);
         Service result = singletonRepository.get(service);
+        // 这种代码可以学习，利用hashMap.putIfAbsent初始化，然后再次利用get(key).add(element);
         namespaceSingletonMaps.computeIfAbsent(result.getNamespace(), (namespace) -> new ConcurrentHashSet<>());
         namespaceSingletonMaps.get(result.getNamespace()).add(result);
         return result;

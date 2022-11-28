@@ -38,9 +38,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author xiweng.yy
  */
 public abstract class AbstractClient implements Client {
-    
+
+    // 服务 -- 实例信息
     protected final ConcurrentHashMap<Service, InstancePublishInfo> publishers = new ConcurrentHashMap<>(16, 0.75f, 1);
-    
+
+    // 服务 -- 订阅者信息
     protected final ConcurrentHashMap<Service, Subscriber> subscribers = new ConcurrentHashMap<>(16, 0.75f, 1);
     
     protected volatile long lastUpdatedTime;
@@ -61,6 +63,7 @@ public abstract class AbstractClient implements Client {
     
     @Override
     public boolean addServiceInstance(Service service, InstancePublishInfo instancePublishInfo) {
+        //添加发布信息到当前的服务 -> instance 容器中去
         if (null == publishers.put(service, instancePublishInfo)) {
             if (instancePublishInfo instanceof BatchInstancePublishInfo) {
                 MetricsMonitor.incrementIpCountWithBatchRegister(instancePublishInfo);
@@ -100,6 +103,7 @@ public abstract class AbstractClient implements Client {
     
     @Override
     public boolean addServiceSubscriber(Service service, Subscriber subscriber) {
+        // 为当前服务添加订阅者
         if (null == subscribers.put(service, subscriber)) {
             MetricsMonitor.incrementSubscribeCount();
         }

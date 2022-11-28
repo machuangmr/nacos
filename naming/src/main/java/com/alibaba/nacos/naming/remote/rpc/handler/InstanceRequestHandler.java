@@ -67,6 +67,7 @@ public class InstanceRequestHandler extends RequestHandler<InstanceRequest, Inst
             throws NacosException {
         // 客户端注册服务
         clientOperationService.registerInstance(service, request.getInstance(), meta.getConnectionId());
+        // 跟踪注册事件和注册主流程关系不大
         NotifyCenter.publishEvent(new RegisterInstanceTraceEvent(System.currentTimeMillis(),
                 meta.getClientIp(), true, service.getNamespace(), service.getGroup(), service.getName(),
                 request.getInstance().getIp(), request.getInstance().getPort()));

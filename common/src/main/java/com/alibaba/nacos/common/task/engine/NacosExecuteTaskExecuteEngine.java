@@ -67,10 +67,12 @@ public class NacosExecuteTaskExecuteEngine extends AbstractNacosTaskExecuteEngin
             return;
         }
         TaskExecuteWorker worker = getWorker(tag);
+        // 最后将任务放入到阻塞队列中去
         worker.process(task);
     }
     
     private TaskExecuteWorker getWorker(Object tag) {
+        // hash 取模
         int idx = (tag.hashCode() & Integer.MAX_VALUE) % workersCount();
         return executeWorkers[idx];
     }
